@@ -1,0 +1,1 @@
+aws cloudformation create-stack --stack-name team-made-tech --template-body file://./main.json

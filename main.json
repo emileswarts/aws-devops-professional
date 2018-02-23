@@ -2,17 +2,41 @@
   "AWSTemplateFormatVersion" : "2010-09-09",
   "Description" : "Deploy team.madetech.com",
   "Resources" : {
-    "TeamMadeTech" : {
-      "Type" : "AWS::S3::Bucket",
+    "WebServerGroup" : {
+      "Type" : "AWS::AutoScaling::AutoScalingGroup",
       "Properties" : {
-        "AccessControl" : "PublicRead"
+        "AvailabilityZones" : [ "eu-west-2c" ],
+        "LaunchConfigurationName" : { "Ref" : "LaunchConfig" },
+        "DesiredCapacity" : "1",
+        "MaxSize" : "2",
+        "MinSize" : "1",
+      }
+    },
+    "LaunchConfig" : {
+      "Type" : "AWS::AutoScaling::LaunchConfiguration",
+      "Metadata" : {
+        "Comment" : "Install a simple Application",
+        "AWS::CloudFormation::Init" : {
+          "config" : {
+            "packages" : {
+              "apt" : {
+                "git" : []
+              }
+            },
+            "files" : {
+              "/var/www/html/index.html" : { "content" : "fooo" },
+                "mode"    : "000644",
+                "owner"   : "root",
+                "group"   : "root"
+              },
+            }
+          }
+        },
+        "Properties" : {
+          "KeyName" : "Emile",
+          "ImageId" : "ami-403e2524",
+          "InstanceType" : "t2.micro"
+        }
       }
     }
-  },
-  "Outputs" : {
-    "WebsiteURL": {
-      "Value" : { "Fn::GetAtt" : [ "TeamMadeTech", "WebsiteURL" ] },
-      "Description" : "URL for s3 bucket"
-    }
   }
-}
